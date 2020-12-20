@@ -35,13 +35,13 @@ CONTAINS
         END DO
         
         IF (INUEVO /= J) THEN
-            PRINT *, 'INTERCAMBIO'
-            PRINT *, 'ANTES:'
-            CALL MAT_MOSTRAR(MAT, '(F8.4)')
+!            PRINT *, 'INTERCAMBIO'
+!            PRINT *, 'ANTES:'
+!            CALL MAT_MOSTRAR(MAT, '(F8.4)')
             CALL MAT_INTERFILAS(MAT, INUEVO, J)
-            WRITE(*,*) 'Se intercambio la fila ', J, ' por la fila ', INUEVO
-            PRINT *, 'DESPUES:'
-            CALL MAT_MOSTRAR(MAT, '(F8.4)')
+!            WRITE(*,*) 'Se intercambio la fila ', J, ' por la fila ', INUEVO
+!            PRINT *, 'DESPUES:'
+!            CALL MAT_MOSTRAR(MAT, '(F8.4)')
         END IF
     END SUBROUTINE
     
