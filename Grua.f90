@@ -6,7 +6,7 @@ PROGRAM GRUA
     IMPLICIT NONE
     
     REAL(8), DIMENSION(:,:), ALLOCATABLE :: A
-    REAL(8), DIMENSION(:), ALLOCATABLE :: B, X
+    REAL(8), DIMENSION(:), ALLOCATABLE :: B
     INTEGER :: BANDERAA, BANDERAB
     
     CALL MAT_LEER(A, BANDERAA, 'A.txt')
@@ -15,6 +15,7 @@ PROGRAM GRUA
     IF (.NOT. VERIF_LECT(BANDERAA, BANDERAB)) GOTO 20
     CALL MOSTRAR_DATOS(A, B)
     
+    CALL PRUEBA_METODOS(A, B)
     
 20  PRINT *, 'Error al leer de archivo.'
 CONTAINS
@@ -38,4 +39,13 @@ CONTAINS
         
         VERIF_LECT = (BA /= 1) .AND. (BB /= 1)
     END FUNCTION
+    
+    SUBROUTINE PRUEBA_METODOS(A, B)
+        REAL(8), INTENT(IN) :: A(:,:), B(:)
+        !
+        REAL(8), DIMENSION(:), ALLOCATABLE :: XGAUSS, XGJ!, XCROUT
+        REAL(8), DIMENSION(:,:), ALLOCATABLE :: BGJ
+        
+        
+    END SUBROUTINE
 END PROGRAM
