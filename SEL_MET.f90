@@ -10,11 +10,11 @@ CONTAINS
     SUBROUTINE SUBRUT_PIVOTEOMATAMP(MAT)
         REAL(8), DIMENSION(:,:), INTENT(INOUT) :: MAT
         !
-        INTEGER :: I, N
+        INTEGER :: J, N
         N = SIZE(MAT,1)
         
-        DO I = 1, N
-            CALL PIVOTEOMATAMP(MAT,I)
+        DO J = 1, N-1
+            CALL PIVOTEOMATAMP(MAT,J)
         END DO
     END SUBROUTINE
     
