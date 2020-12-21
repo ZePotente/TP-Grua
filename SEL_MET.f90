@@ -7,19 +7,25 @@ CONTAINS
     
     !Pivotea toda la matriz agarrando desde la diagonal para abajo.
     !Yendo de izquierda a derecha.
-    SUBROUTINE SUBRUT_PIVOTEOMATAMP(MAT)
+    SUBROUTINE SUBRUT_PIVOTEOMATAMP(MAT, B)
         REAL(8), DIMENSION(:,:), INTENT(INOUT) :: MAT
+        REAL(8), DIMENSION(:), OPTIONAL :: B
         !
         INTEGER :: J, N
         N = SIZE(MAT,1)
         
         DO J = 1, N-1
-            CALL PIVOTEOMATAMP(MAT,J)
+            IF (PRESENT(B)) THEN
+                CALL PIVOTEOMATAMP(MAT, J, B)
+            ELSE
+                CALL PIVOTEOMATAMP(MAT, J)
+            END IF
         END DO
     END SUBROUTINE
     
-    SUBROUTINE PIVOTEOMATAMP(MAT, J)
+    SUBROUTINE PIVOTEOMATAMP(MAT, J, B)
         REAL(8), DIMENSION(:,:), INTENT(INOUT) :: MAT
+        REAL(8), DIMENSION(:), OPTIONAL :: B
         INTEGER, INTENT(IN) :: J
         !
         REAL(8) :: MAXIMO
@@ -39,6 +45,7 @@ CONTAINS
 !            PRINT *, 'ANTES:'
 !            CALL MAT_MOSTRAR(MAT, '(F8.4)')
             CALL MAT_INTERFILAS(MAT, INUEVO, J)
+            IF (PRESENT(B)) CALL VEC_INTERELEM(B, INUEVO, J)
 !            WRITE(*,*) 'Se intercambio la fila ', J, ' por la fila ', INUEVO
 !            PRINT *, 'DESPUES:'
 !            CALL MAT_MOSTRAR(MAT, '(F8.4)')
