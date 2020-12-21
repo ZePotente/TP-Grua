@@ -13,7 +13,7 @@ PROGRAM GRUA
     CALL MAT_LEER(A, BANDERAA, 'APV.txt')
     CALL VEC_LEER(B, BANDERAB, 'BPV.txt')
     !prueba
-    CALL PRUEBA_PIVOTEO(A)
+    CALL PRUEBA_PIVOTEO(A, B)
     
     IF (.NOT. VERIF_LECT(BANDERAA, BANDERAB)) GOTO 20
     CALL MOSTRAR_DATOS(A, B)
@@ -78,19 +78,21 @@ CONTAINS
         DEALLOCATE(MATAMPGAUSS, MATGSR, MATAMPGJ, BMAT)
     END SUBROUTINE
     
-    SUBROUTINE PRUEBA_PIVOTEO(MAT)
-        REAL(8), DIMENSION(:,:), INTENT(IN) :: MAT
+    SUBROUTINE PRUEBA_PIVOTEO(MAT, B)
+        REAL(8), INTENT(IN) :: MAT(:,:), B(:)
         !
-        REAL(8), DIMENSION(:,:), ALLOCATABLE :: MATPIV
+        REAL(8), ALLOCATABLE :: MATPIV(:,:), BPIV(:)
         INTEGER :: N, M
         N = SIZE(MAT,1); M = SIZE(MAT,2)
-        ALLOCATE(MATPIV(N,M))
-        MATPIV = MAT
-        CALL SUBRUT_PIVOTEOMATAMP(MATPIV)
-        PRINT *, 'Matriz original leida:'
+        ALLOCATE(MATPIV(N,M), BPIV(N))
+        MATPIV = MAT; BPIV = B
+        CALL SUBRUT_PIVOTEOMATAMP(MATPIV, BPIV)
+        PRINT *, 'Datos originales leidos:'
         CALL MAT_MOSTRAR(MAT)
-        PRINT *, 'Matriz pivoteada al inicio:'
+        CALL VEC_MOSTRAR(B)
+        PRINT *, 'Datos pivoteados al inicio:'
         CALL MAT_MOSTRAR(MATPIV)
+        CALL VEC_MOSTRAR(BPIV)
         DEALLOCATE(MATPIV)
     END SUBROUTINE
 END PROGRAM
