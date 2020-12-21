@@ -10,8 +10,10 @@ PROGRAM GRUA
     INTEGER :: BANDERAA, BANDERAB, BANDERA
     CHARACTER(*), PARAMETER :: FORMATO = '(F25.15)' !Es el mismo formato del módulo, pero por si se quiere cambiar.
     
-    CALL MAT_LEER(A, BANDERAA, 'A.txt')
-    CALL VEC_LEER(B, BANDERAB, 'B.txt')
+    CALL MAT_LEER(A, BANDERAA, 'APV.txt')
+    CALL VEC_LEER(B, BANDERAB, 'BPV.txt')
+    !prueba
+    CALL PRUEBA_PIVOTEO(A)
     
     IF (.NOT. VERIF_LECT(BANDERAA, BANDERAB)) GOTO 20
     CALL MOSTRAR_DATOS(A, B)
@@ -74,5 +76,21 @@ CONTAINS
         XGJ = MATAMPGJ(:,N+1)
         
         DEALLOCATE(MATAMPGAUSS, MATGSR, MATAMPGJ, BMAT)
+    END SUBROUTINE
+    
+    SUBROUTINE PRUEBA_PIVOTEO(MAT)
+        REAL(8), DIMENSION(:,:), INTENT(IN) :: MAT
+        !
+        REAL(8), DIMENSION(:,:), ALLOCATABLE :: MATPIV
+        INTEGER :: N, M
+        N = SIZE(MAT,1); M = SIZE(MAT,2)
+        ALLOCATE(MATPIV(N,M))
+        MATPIV = MAT
+        CALL SUBRUT_PIVOTEOMATAMP(MATPIV)
+        PRINT *, 'Matriz original leida:'
+        CALL MAT_MOSTRAR(MAT)
+        PRINT *, 'Matriz pivoteada al inicio:'
+        CALL MAT_MOSTRAR(MATPIV)
+        DEALLOCATE(MATPIV)
     END SUBROUTINE
 END PROGRAM
