@@ -1,6 +1,6 @@
 PROGRAM GRUA
     !Modulo
-    USE SEL_MET
+    USE METODOS_DIR
     USE VYM_IO
     
     IMPLICIT NONE
