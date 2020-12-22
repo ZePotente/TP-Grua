@@ -6,8 +6,8 @@ PROGRAM GRUA
     IMPLICIT NONE
     
     REAL(8), DIMENSION(:,:), ALLOCATABLE :: A, ACROUT
-    REAL(8), DIMENSION(:), ALLOCATABLE :: B, BCROUT,           BMEDIO, BCERCA, BMAX
-    REAL(8), DIMENSION(:), ALLOCATABLE :: XGAUSS, XGJ, XCROUT, XMEDIO, XCERCA, XMAX
+    REAL(8), DIMENSION(:), ALLOCATABLE :: B, BCROUT,           BMEDIO, BCERCA
+    REAL(8), DIMENSION(:), ALLOCATABLE :: XGAUSS, XGJ, XCROUT, XMEDIO, XCERCA
     INTEGER :: BANDERAA, BANDERAB, BANDERAC, BANDERAD !Banderas reutilizables.
     CHARACTER(*), PARAMETER :: FORMATO = '(F10.4)' !Formato global.
     
@@ -36,29 +36,27 @@ PROGRAM GRUA
     PRINT *, 'Prueba inicial terminada.'
     
     CALL CONFIRMAR()
-    CALL SYSTEM("Clear")
+    CALL SYSTEM("clear")
     
     !Prueba en distintas posiciones y carga con el Método de Gauss-Jordan.
     PRINT *, 'Resolución en diferentes condiciones mediante el método de Gauss-Jordan.'
     PRINT *, 'Leyendo términos independientes...'
     CALL VEC_LEER(BMEDIO, BANDERAA, 'B - Posicion intermedia.txt')
     CALL VEC_LEER(BCERCA, BANDERAB, 'B - Posicion cercana.txt')
-    CALL VEC_LEER(BMAX,   BANDERAC, 'B - Maximo.txt')
     
     IF (.NOT. VERIF_ARCH(BANDERAA, BANDERAB, BANDERAC)) GOTO 20 
     PRINT *, 'Datos leidos correctamente.'
-    CALL MOSTRAR_TERMIND(BMEDIO, BCERCA, BMAX)
+    CALL MOSTRAR_TERMIND(BMEDIO, BCERCA)
     
     PRINT *, 'Resolviendo sistemas mediante Gauss-Jordan.'
-    CALL RESOLUCION_GJ(A, BMEDIO, BCERCA, BMAX, XMEDIO, XCERCA, XMAX)
+    CALL RESOLUCION_GJ(A, BMEDIO, BCERCA, XMEDIO, XCERCA)
     PRINT *, 'Métodos finalizados.'
     
     PRINT *, 'Guardando resultados en archivo...'
     CALL VEC_GUARDAR(XMEDIO, BANDERAA, 'Resultados en el centro.txt')
     CALL VEC_GUARDAR(XCERCA, BANDERAB, 'Resultados en posicion cercana.txt')
-    CALL VEC_GUARDAR(XMAX, BANDERAC, 'Resultados del peso maximo.txt')
     
-    IF (.NOT. VERIF_ARCH(BANDERAA, BANDERAB, BANDERAC)) GOTO 20 
+    IF (BANDERAA /= 1 .AND. BANDERAB /= 1) GOTO 20 
     PRINT *, 'Resultados guardados correctamente.'
     
     GOTO 10
@@ -89,8 +87,8 @@ CONTAINS
     
     END SUBROUTINE
     
-    SUBROUTINE MOSTRAR_TERMIND(BMEDIO, BCERCA, BMAX)
-        REAL(8), DIMENSION(:) :: BMEDIO, BCERCA, BMAX
+    SUBROUTINE MOSTRAR_TERMIND(BMEDIO, BCERCA)
+        REAL(8), DIMENSION(:) :: BMEDIO, BCERCA
         !
         
         PRINT *, 'Terminos independientes en el medio:'
@@ -98,9 +96,6 @@ CONTAINS
         
         PRINT *, 'Terminos independientes en el punto más cercano:'
         CALL VEC_MOSTRAR(BCERCA, FORMATO)
-        
-        PRINT *, 'Terminos independientes con carga máxima:'
-        CALL VEC_MOSTRAR(BMAX, FORMATO)
     END SUBROUTINE
     
     FUNCTION VERIF_ARCH(BA, BB, BC)
@@ -138,32 +133,28 @@ CONTAINS
         DEALLOCATE(MATAMPGAUSS, MATGSR, MATAMPGJ, BMAT)
     END SUBROUTINE
     
-    SUBROUTINE RESOLUCION_GJ(A, BMEDIO, BCERCA, BMAX, XMEDIO, XCERCA, XMAX)
+    SUBROUTINE RESOLUCION_GJ(A, BMEDIO, BCERCA, XMEDIO, XCERCA)
         REAL(8), DIMENSION(:,:) :: A
-        REAL(8), DIMENSION(:) :: BMEDIO, BCERCA, BMAX
-        REAL(8), DIMENSION(:), ALLOCATABLE :: XMEDIO, XCERCA, XMAX
+        REAL(8), DIMENSION(:) :: BMEDIO, BCERCA
+        REAL(8), DIMENSION(:), ALLOCATABLE :: XMEDIO, XCERCA
         !
-        REAL(8), DIMENSION(:,:), ALLOCATABLE :: MATAMPMEDIO, MATAMPCERCA, MATAMPMAX, BMATMEDIO, BMATCERCA, BMATMAX
+        REAL(8), DIMENSION(:,:), ALLOCATABLE :: MATAMPMEDIO, MATAMPCERCA, BMATMEDIO, BMATCERCA
         INTEGER :: N
         
         N = SIZE(B) !Cantidad de filas del sistema (cantidad de fuerzas).
-        ALLOCATE(BMATMEDIO(N,1), BMATCERCA(N,1), BMATMAX(N,1))
+        ALLOCATE(BMATMEDIO(N,1), BMATCERCA(N,1))
         BMATMEDIO(:,1) = BMEDIO
         BMATCERCA(:,1) = BCERCA
-        BMATMAX(:,1) = BMAX
         
         CALL MET_GAUSSJORDAN(A, BMATMEDIO, MATAMPMEDIO)
         
         CALL MET_GAUSSJORDAN(A, BMATCERCA, MATAMPCERCA)
         
-        CALL MET_GAUSSJORDAN(A, BMATMAX, MATAMPMAX)
-        
         !Se pasan los resultados a vectores.
-        ALLOCATE(XMEDIO(N), XCERCA(N), XMAX(N))
+        ALLOCATE(XMEDIO(N), XCERCA(N))
         XMEDIO = MATAMPMEDIO(:,N+1)
         XCERCA = MATAMPCERCA(:,N+1)
-        XMAX = MATAMPMAX(:,N+1)
         
-        DEALLOCATE(MATAMPMEDIO, MATAMPCERCA, MATAMPMAX, BMATMEDIO, BMATCERCA, BMATMAX)
+        DEALLOCATE(MATAMPMEDIO, MATAMPCERCA, BMATMEDIO, BMATCERCA)
     END SUBROUTINE
 END PROGRAM
