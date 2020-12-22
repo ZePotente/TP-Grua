@@ -1,5 +1,7 @@
 MODULE METODOS_INDIR
     USE VYM_MANIP
+    USE VYM_IO
+!    USE VYM_
     IMPLICIT NONE
 CONTAINS    
     !----------Métodos Indirectos----------!
@@ -27,17 +29,19 @@ CONTAINS
             X = XI
         END IF
         
-        ALLOCATE(BMAT(N,1))
-        BMAT(:,1) = BIN
+!        ALLOCATE(BMAT(N,1))
+!        BMAT(:,1) = BIN
         
-        CALL MATRIZAMPLIADA(AIN, BMAT, MATAMP)
+!        CALL MATRIZAMPLIADA(AIN, BMAT, MATAMP)
         
-        PRINT *, 'MATAMP'; CALL MAT_MOSTRAR(MATAMP)
-        CALL SUBRUT_PIVOTEOMATAMP(MATAMP)
-        PRINT *, 'MATAMP'; CALL MAT_MOSTRAR(MATAMP)
+!        PRINT *, 'MATAMP'; CALL MAT_MOSTRAR(MATAMP)
+!        CALL SUBRUT_PIVOTEOMATAMP(MATAMP)
+!        PRINT *, 'MATAMP'; CALL MAT_MOSTRAR(MATAMP)
         ALLOCATE(A(N,N), B(N))
-        A = MATAMP(:N,:N)
-        B = MATAMP(:,N+1)
+!        A = MATAMP(:N,:N)
+!        B = MATAMP(:,N+1)
+        A = AIN
+        B = BIN
         ALLOCATE(XANT(N))
         ITER = 0; ERROR = 2.*TOL !Valor imposible
         DO WHILE(ITER < MAXITER .AND. ERROR >= TOL)
@@ -57,10 +61,12 @@ CONTAINS
             !Pero en el codigo solo hace la diferencia, asi que lo dejo asi.
             ERROR = VEC_NORMAM(X-XANT)
 !            ERROR = VEC_NORMAM(VEC_RESIDUO(A, B, X))
-!            WRITE(*,*) 'Error', ERROR
+            WRITE(*,*) 'Error', ERROR
             ITER = ITER + 1
         END DO
         IF (ITER >= MAXITER) PRINT *, 'Jacobi diverge'
+        
+        PRINT *, 'Iteraciones: ', ITER
         DEALLOCATE(XANT)
     END SUBROUTINE
     
@@ -85,19 +91,24 @@ CONTAINS
             X = XI
         END IF
         
-        ALLOCATE(BMAT(N,1))
-        BMAT(:,1) = BIN
+!        ALLOCATE(BMAT(N,1))
+!        BMAT(:,1) = BIN
         
-        CALL MATRIZAMPLIADA(AIN, BMAT, MATAMP)
+!        CALL MATRIZAMPLIADA(AIN, BMAT, MATAMP)
         
-        PRINT *, 'MATAMP'; CALL MAT_MOSTRAR(MATAMP)
-        CALL SUBRUT_PIVOTEOMATAMP(MATAMP)
-        CALL MAT_INTERFILAS(MATAMP, 3, 4)
-        PRINT *, 'MATAMP'; CALL MAT_MOSTRAR(MATAMP)
+!        PRINT *, 'MATAMP'; CALL MAT_MOSTRAR(MATAMP)
+!        CALL SUBRUT_PIVOTEOMATAMP(MATAMP)
+!        CALL MAT_INTERFILAS(MATAMP, 3, 4)
+!        PRINT *, 'MATAMP'; CALL MAT_MOSTRAR(MATAMP)
         ALLOCATE(A(N,N), B(N))
-        A = MATAMP(:N,:N)
-        B = MATAMP(:,N+1)
-
+!        A = MATAMP(:N,:N)
+!        B = MATAMP(:,N+1)
+        A = AIN
+        B = BIN
+        PRINT *,'A'
+        CALL MAT_MOSTRAR(A)
+        PRINT *,'B'
+        CALL VEC_MOSTRAR(B)
 !        ALLOCATE(XANT(N))
         ITER = 0; ERROR = 2.*TOL !Valor imposible
         DO WHILE(ITER < MAXITER .AND. ERROR >= TOL)

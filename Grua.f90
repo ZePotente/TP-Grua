@@ -1,13 +1,14 @@
 PROGRAM GRUA
     !Modulo
     USE METODOS_DIR
+    USE METODOS_INDIR
     USE VYM_IO
     
     IMPLICIT NONE
     
     REAL(8), DIMENSION(:,:), ALLOCATABLE :: A, ACROUT
     REAL(8), DIMENSION(:), ALLOCATABLE :: B, BCROUT,           BMEDIO, BCERCA, BMAX
-    REAL(8), DIMENSION(:), ALLOCATABLE :: XGAUSS, XGJ, XCROUT, XMEDIO, XCERCA, XMAX
+    REAL(8), DIMENSION(:), ALLOCATABLE :: XGAUSS, XGJ, XCROUT, XMEDIO, XCERCA, XMAX, XGS
     INTEGER :: BANDERAA, BANDERAB, BANDERAC, BANDERAD !Banderas reutilizables.
     CHARACTER(*), PARAMETER :: FORMATO = '(F10.4)' !Formato global.
     
@@ -22,6 +23,11 @@ PROGRAM GRUA
     PRINT *, 'Datos leidos correctamente.'
     CALL MOSTRAR_DATOS(A, B, ACROUT, BCROUT)
     
+    CALL MET_JACOBI(ACROUT, BCROUT, 1D-15, XGS)
+!    PRINT *, 'Resultado por Jacobi'
+    PRINT *, 'Resultado por Gauss-Seidel'
+    CALL VEC_MOSTRAR(XGS)
+    PRINT *, 'MOSTRADO'
     PRINT *, 'Prueba de métodos en la posición inicial.'
     CALL PRUEBA_METODOS_DIR(A, B, ACROUT, BCROUT, XGAUSS, XGJ, XCROUT)
     PRINT *, 'Métodos finalizados.'
