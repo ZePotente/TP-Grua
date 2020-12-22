@@ -36,14 +36,8 @@ CONTAINS
         END DO
         
         IF (INUEVO /= J) THEN
-!            PRINT *, 'INTERCAMBIO'
-!            PRINT *, 'ANTES:'
-!            CALL MAT_MOSTRAR(MAT, '(F8.4)')
             CALL MAT_INTERFILAS(MAT, INUEVO, J)
             IF (PRESENT(B)) CALL VEC_INTERELEM(B, INUEVO, J)
-!            WRITE(*,*) 'Se intercambio la fila ', J, ' por la fila ', INUEVO
-!            PRINT *, 'DESPUES:'
-!            CALL MAT_MOSTRAR(MAT, '(F8.4)')
         END IF
     END SUBROUTINE
     
@@ -59,7 +53,7 @@ CONTAINS
         X = MATAMP(:,N+1:)
         !Paso 1 dividir la ultima fila para tener el resultado del final.
         X(N,:) = X(N,:)/MATAMP(N,N)
-        !Paso 2 sustitucion hacia arriba.
+        !Paso 2 sustitucion hacia arriba ("regresiva").
         DO I = N-1, 1, -1
             SUMA(:) = 0.
             DO K = I+1, N
@@ -72,7 +66,7 @@ CONTAINS
     END SUBROUTINE
     
     !Devuelve una matriz ampliada en GAUSS, con los resultados correspondientes a B.
-    !PUEDE REALIZAR PIVOTEO.
+    !Realida pivoteo parcial por filas
     SUBROUTINE MET_GAUSS(A, B, GAUSS)
         REAL(8), ALLOCATABLE, DIMENSION(:,:) :: GAUSS
         REAL(8), DIMENSION(:,:), INTENT(IN) :: A, B
@@ -92,7 +86,7 @@ CONTAINS
     END SUBROUTINE
     
     !Devuelve una matriz ampliada en GJ, con los resultados correspondientes a B.
-    !PUEDE REALIZAR PIVOTEO.
+    !Realida pivoteo parcial por filas
     SUBROUTINE MET_GAUSSJORDAN(A, B, GJ)
         REAL(8), ALLOCATABLE, DIMENSION(:,:) :: GJ
         REAL(8), DIMENSION(:,:), INTENT(IN) :: A, B
@@ -132,7 +126,7 @@ CONTAINS
         CALL LU_REDUCCION(A,RED)
         N = SIZE(A,1)
         ALLOCATE(C(N), CROUT(N))
-        !Copiado
+        
         !Sustitucion progresiva para calcular C
         C(1) = B(1)/RED(1,1)
         DO I = 2, N
@@ -150,7 +144,6 @@ CONTAINS
                 CROUT(I) = CROUT(I) - RED(I,K)*CROUT(K)
             END DO
         END DO
-        !Fin copiado
         
         DEALLOCATE(C)
     END SUBROUTINE
@@ -162,18 +155,18 @@ CONTAINS
         !
         INTEGER :: I, FILA, COL, K, N
         N = SIZE(MAT,1)
-        !copio
+        
         RED = MAT
         RED(1,2:) = RED(1,2:)/RED(1,1)
         
         DO I = 2, N
-            !"Calcula la columna i"
+            !Calcula la columna i
             DO FILA = I, N
                 DO K = 1, I-1
                     RED(FILA,I) = RED(FILA,I) - RED(FILA,K)*RED(K,I)
                 END DO
             END DO
-            !"Calcula fila i"
+            !Calcula fila i
             DO COL = I+1, N
                 DO K = 1, I-1
                     RED(I,COL) = RED(I,COL) - RED(I,K)*RED(K,COL)
