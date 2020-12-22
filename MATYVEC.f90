@@ -224,5 +224,56 @@ CONTAINS
         
         DEALLOCATE(AUX)
     END SUBROUTINE
+    
+    FUNCTION VEC_NORMAM(VEC)
+        REAL(8) :: VEC_NORMAM
+        REAL(8), DIMENSION(:), INTENT(IN) :: VEC
+        !
+        REAL(8), ALLOCATABLE, DIMENSION(:) :: AUX
+        
+        ALLOCATE(AUX(SIZE(VEC)))
+        AUX = ABS(VEC)
+        
+        VEC_NORMAM = MAXVAL(AUX)
+        DEALLOCATE(AUX)
+    END FUNCTION
+    
+    SUBROUTINE PIVOTEOMATAMP(MAT, J, B)
+        REAL(8), DIMENSION(:,:), INTENT(INOUT) :: MAT
+        REAL(8), DIMENSION(:), OPTIONAL :: B
+        INTEGER, INTENT(IN) :: J
+        !
+        REAL(8) :: MAXIMO
+        INTEGER :: I, INUEVO, N
+        N = SIZE(MAT,1)
+        MAXIMO = 0.
+        INUEVO = J
+        DO I = J+1, N
+            IF (ABS(MAT(I,J))>MAXIMO) THEN
+                MAXIMO = ABS(MAT(I,J))
+                INUEVO = I
+            END IF
+        END DO
+        
+        IF (INUEVO /= J) THEN
+            CALL MAT_INTERFILAS(MAT, INUEVO, J)
+            IF (PRESENT(B)) CALL VEC_INTERELEM(B, INUEVO, J)
+        END IF
+    END SUBROUTINE
+    
+    SUBROUTINE MATRIZAMPLIADA(A, B, MATAMP)
+        REAL(8), DIMENSION(:,:), ALLOCATABLE, INTENT(OUT) :: MATAMP
+        REAL(8), DIMENSION(:,:), INTENT(IN) :: A, B
+        
+        INTEGER :: N, M, Q
+        
+        N = SIZE(A,1); M = SIZE(A,2);
+        Q = SIZE(B,2);
+        
+        ALLOCATE(MATAMP(N,M+Q))
+        
+        MATAMP(:,:M) = A
+        MATAMP(:,M+1:) = B
+    END SUBROUTINE
 END MODULE
 

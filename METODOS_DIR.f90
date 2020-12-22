@@ -1,46 +1,7 @@
 MODULE METODOS_DIR
-    USE VYM_IO
     USE VYM_MANIP
     IMPLICIT NONE
-CONTAINS
-    FUNCTION MATRIZAMPLIADA(A, B)
-        REAL(8), DIMENSION(:,:), ALLOCATABLE :: MATRIZAMPLIADA
-        REAL(8), DIMENSION(:,:) :: A, B
-        
-        INTEGER :: N, M, Q
-        
-        N = SIZE(A,1); M = SIZE(A,2);
-        Q = SIZE(B,2);
-        
-        ALLOCATE(MATRIZAMPLIADA(N,M+Q))
-        
-        MATRIZAMPLIADA(:,:M) = A
-        MATRIZAMPLIADA(:,M+1:) = B
-    END FUNCTION
-    
-    SUBROUTINE PIVOTEOMATAMP(MAT, J, B)
-        REAL(8), DIMENSION(:,:), INTENT(INOUT) :: MAT
-        REAL(8), DIMENSION(:), OPTIONAL :: B
-        INTEGER, INTENT(IN) :: J
-        !
-        REAL(8) :: MAXIMO
-        INTEGER :: I, INUEVO, N
-        N = SIZE(MAT,1)
-        MAXIMO = 0.
-        INUEVO = J
-        DO I = J+1, N
-            IF (ABS(MAT(I,J))>MAXIMO) THEN
-                MAXIMO = ABS(MAT(I,J))
-                INUEVO = I
-            END IF
-        END DO
-        
-        IF (INUEVO /= J) THEN
-            CALL MAT_INTERFILAS(MAT, INUEVO, J)
-            IF (PRESENT(B)) CALL VEC_INTERELEM(B, INUEVO, J)
-        END IF
-    END SUBROUTINE
-    
+CONTAINS    
     SUBROUTINE SUST_REGRESIVA(MATAMP, X)
         REAL(8), DIMENSION(:,:), INTENT(IN) :: MATAMP
         REAL(8), DIMENSION(:,:), ALLOCATABLE, INTENT(OUT) :: X
@@ -75,7 +36,7 @@ CONTAINS
         
         ORDEN = SIZE(A,1)
         
-        GAUSS = MATRIZAMPLIADA(A, B)
+        CALL MATRIZAMPLIADA(A, B, GAUSS)
         DO J = 1, ORDEN
             CALL PIVOTEOMATAMP(GAUSS, J)
             DO FILA = J+1, ORDEN
@@ -95,7 +56,7 @@ CONTAINS
         
         ORDEN = SIZE(A,1)
         
-        GJ = MATRIZAMPLIADA(A, B)
+        CALL MATRIZAMPLIADA(A, B, GJ)
         
         DO J = 1, ORDEN
             CALL PIVOTEOMATAMP(GJ, J)
