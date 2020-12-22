@@ -6,12 +6,12 @@ PROGRAM GRUA
     IMPLICIT NONE
     
     REAL(8), DIMENSION(:,:), ALLOCATABLE :: A, ACROUT
-    REAL(8), DIMENSION(:), ALLOCATABLE :: B, BCROUT,           BMEDIO, BCERCA, BMAX
-    REAL(8), DIMENSION(:), ALLOCATABLE :: XGAUSS, XGJ, XCROUT, XMEDIO, XCERCA, XMAX
+    REAL(8), DIMENSION(:), ALLOCATABLE :: B, BCROUT,           BMEDIO, BCERCA, BMAX, BLEJOS
+    REAL(8), DIMENSION(:), ALLOCATABLE :: XGAUSS, XGJ, XCROUT, XMEDIO, XCERCA, XMAX, XLEJOS
     INTEGER :: BANDERAA, BANDERAB, BANDERAC, BANDERAD !Banderas reutilizables.
     CHARACTER(*), PARAMETER :: FORMATO = '(F10.4)' !Formato global.
     
-    !Prueba inicial
+    !--Prueba inicial--!
     PRINT *, 'Lectura de los datos iniciales.'
     CALL MAT_LEER(A, BANDERAA, 'A.txt')
     CALL VEC_LEER(B, BANDERAB, 'B.txt')
@@ -38,7 +38,7 @@ PROGRAM GRUA
     CALL CONFIRMAR()
     CALL SYSTEM("Clear")
     
-    !Prueba en distintas posiciones y carga con el Método de Gauss-Jordan.
+    !--Prueba en distintas posiciones y carga con el Método de Gauss-Jordan.--!
     PRINT *, 'Resolución en diferentes condiciones mediante el método de Gauss-Jordan.'
     PRINT *, 'Leyendo términos independientes...'
     CALL VEC_LEER(BMEDIO, BANDERAA, 'B - Posicion intermedia.txt')
@@ -61,6 +61,30 @@ PROGRAM GRUA
     IF (.NOT. VERIF_ARCH(BANDERAA, BANDERAB, BANDERAC)) GOTO 20 
     PRINT *, 'Resultados guardados correctamente.'
     
+    CALL CONFIRMAR()
+    
+    !--Prueba de carga máxima por barra de 20000kgf.--!
+    PRINT *, 'Resolución para una carga máxima por barra de 20 toneladas.'
+    IF (ALLOCATED(BCERCA)) DEALLOCATE(BCERCA); IF (ALLOCATED(BMEDIO)) DEALLOCATE(BMEDIO);
+    PRINT *, 'Leyendo términos independientes...'
+    CALL VEC_LEER(BCERCA, BANDERAB, 'B - Max - Posicion cercana.txt')
+    CALL VEC_LEER(BMEDIO, BANDERAA, 'B - Max - Posicion intermedia.txt')
+    CALL VEC_LEER(BLEJOS, BANDERAC, 'B - Max - Posicion lejana.txt')
+    
+    IF (.NOT. VERIF_ARCH(BANDERAA, BANDERAB, BANDERAC)) GOTO 20 
+    PRINT *, 'Resultados guardados correctamente.'
+    
+    IF (ALLOCATED(XCERCA)) DEALLOCATE(XCERCA); IF (ALLOCATED(XMEDIO)) DEALLOCATE(XMEDIO);
+    CALL RESULUCION_MAX(A, BCERCA, BMEDIO, BLEJOS, XCERCA, XMEDIO, XLEJOS)
+    PRINT *, 'Métodos finalizados.'
+    
+    PRINT *, 'Guardando resultados en archivo...'
+    CALL VEC_GUARDAR(XCERCA, BANDERAA, 'Resultados max en posicion cercana.txt')
+    CALL VEC_GUARDAR(XMEDIO, BANDERAB, 'Resultados max en el centro.txt')
+    CALL VEC_GUARDAR(XLEJOS, BANDERAC, 'Resultados max en la pocicion lejana.txt')
+    
+    IF (.NOT. VERIF_ARCH(BANDERAA, BANDERAB, BANDERAC)) GOTO 20 
+    PRINT *, 'Resultados guardados correctamente.'
     GOTO 10
 20  PRINT *, 'Error al tratar con algún archivo.'
 
@@ -143,14 +167,14 @@ CONTAINS
         REAL(8), DIMENSION(:) :: BMEDIO, BCERCA, BMAX
         REAL(8), DIMENSION(:), ALLOCATABLE :: XMEDIO, XCERCA, XMAX
         !
-        REAL(8), DIMENSION(:,:), ALLOCATABLE :: MATAMPMEDIO, MATAMPCERCA, MATAMPMAX, BMATMEDIO, BMATCERCA, BMATMAX
+        REAL(8), DIMENSION(:,:), ALLOCATABLE :: MATAMPCERCA, MATAMPMEDIO, MATAMPLEJOS, BMATCERCA, BMATMEDIO, BMATLEJOS
         INTEGER :: N
         
         N = SIZE(B) !Cantidad de filas del sistema (cantidad de fuerzas).
         ALLOCATE(BMATMEDIO(N,1), BMATCERCA(N,1), BMATMAX(N,1))
         BMATMEDIO(:,1) = BMEDIO
         BMATCERCA(:,1) = BCERCA
-        BMATMAX(:,1) = BMAX
+        BMATLEJOS(:,1) = BLEJOS
         
         CALL MET_GAUSSJORDAN(A, BMATMEDIO, MATAMPMEDIO)
         
@@ -165,5 +189,11 @@ CONTAINS
         XMAX = MATAMPMAX(:,N+1)
         
         DEALLOCATE(MATAMPMEDIO, MATAMPCERCA, MATAMPMAX, BMATMEDIO, BMATCERCA, BMATMAX)
+    END SUBROUTINE
+    
+    SUBROUTINE RESULUCION_MAX(A, BCERCA, BMEDIO, BLEJOS, XCERCA, XMEDIO, XLEJOS)
+        REAL(8), DIMENSION(:,:) :: A
+        REAL(8), DIMENSION(:) :: BCERCA, BMEDIO, BLEJOS
+        REAL(8), DIMENSION(:), ALLOCATABLE :: XCERCA, XMEDIO, XLEJOS
     END SUBROUTINE
 END PROGRAM
