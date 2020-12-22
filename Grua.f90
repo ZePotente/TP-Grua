@@ -6,9 +6,9 @@ PROGRAM GRUA
     IMPLICIT NONE
     
     REAL(8), DIMENSION(:,:), ALLOCATABLE :: A, ACROUT
-    REAL(8), DIMENSION(:), ALLOCATABLE :: B,                   BMEDIO, BCERCA, BMAX
+    REAL(8), DIMENSION(:), ALLOCATABLE :: B, BCROUT,           BMEDIO, BCERCA, BMAX
     REAL(8), DIMENSION(:), ALLOCATABLE :: XGAUSS, XGJ, XCROUT, XMEDIO, XCERCA, XMAX
-    INTEGER :: BANDERAA, BANDERAB, BANDERAC !Banderas reutilizables.
+    INTEGER :: BANDERAA, BANDERAB, BANDERAC, BANDERAD !Banderas reutilizables.
     CHARACTER(*), PARAMETER :: FORMATO = '(F10.4)' !Formato global.
     
     !Prueba inicial
@@ -16,13 +16,15 @@ PROGRAM GRUA
     CALL MAT_LEER(A, BANDERAA, 'A.txt')
     CALL VEC_LEER(B, BANDERAB, 'B.txt')
     CALL MAT_LEER(ACROUT, BANDERAC, 'ACrout.txt')
+    CALL VEC_LEER(BCROUT, BANDERAD, 'BCrout.txt')
     
-    IF (.NOT. VERIF_ARCH(BANDERAA, BANDERAB, BANDERAC)) GOTO 20
+!    PRINT *, .NOT. VERIF_ARCH(BANDERAA, BANDERAB, BANDERAC)
+    IF (.NOT. VERIF_ARCH(BANDERAA, BANDERAB, BANDERAC) .OR. BANDERAD == 1) GOTO 20
     PRINT *, 'Datos leidos correctamente.'
-    CALL MOSTRAR_DATOS(A, ACROUT, B)
+    CALL MOSTRAR_DATOS(A, B, ACROUT, BCROUT)
     
     PRINT *, 'Prueba de métodos en la posición inicial.'
-    CALL PRUEBA_METODOS_DIR(A, ACROUT, B, XGAUSS, XGJ, XCROUT)
+    CALL PRUEBA_METODOS_DIR(A, B, ACROUT, BCROUT, XGAUSS, XGJ, XCROUT)
     PRINT *, 'Métodos finalizados.'
     
     PRINT *, 'Guardando resultados en archivo...'
@@ -70,18 +72,21 @@ CONTAINS
         READ(*,*)
     END SUBROUTINE
     
-    SUBROUTINE MOSTRAR_DATOS(A, ACROUT, B)
-        REAL(8), INTENT(IN) :: A(:,:), ACROUT(:,:), B(:)
+    SUBROUTINE MOSTRAR_DATOS(A, B, ACROUT, BCROUT)
+        REAL(8), INTENT(IN) :: A(:,:), ACROUT(:,:), B(:), BCROUT(:)
         !
         
         PRINT *, 'Matriz inicial:'
         CALL MAT_MOSTRAR(A, FORMATO)
         
+        PRINT *, 'Vector de términos independientes:'
+        CALL VEC_MOSTRAR(B, FORMATO)
+        
         PRINT *, 'Matriz inicial para método de Crout:'
         CALL MAT_MOSTRAR(ACROUT, FORMATO)
         
-        PRINT *, 'Vector de términos independientes:'
-        CALL VEC_MOSTRAR(B, FORMATO)
+        PRINT *, 'Vector de términos independientes para método de Crout:'
+        CALL VEC_MOSTRAR(BCROUT, FORMATO)
     
     END SUBROUTINE
     
@@ -108,8 +113,8 @@ CONTAINS
     
     !Se devuelven los resultados obtenidos por los diferentes métodos directos.
     !B es un vector, asi que se devuelven resultados vectoriales.
-    SUBROUTINE PRUEBA_METODOS_DIR(A, ACROUT, B, XGAUSS, XGJ, XCROUT)
-        REAL(8), INTENT(IN) :: A(:,:), ACROUT(:,:), B(:)
+    SUBROUTINE PRUEBA_METODOS_DIR(A, B, ACROUT, BCROUT, XGAUSS, XGJ, XCROUT)
+        REAL(8), INTENT(IN) :: A(:,:), B(:), ACROUT(:,:), BCROUT(:)
         REAL(8), DIMENSION(:), ALLOCATABLE, INTENT(OUT) :: XGAUSS, XGJ, XCROUT
         !
         REAL(8), DIMENSION(:,:), ALLOCATABLE :: MATAMPGAUSS, MATGSR, MATAMPGJ
@@ -124,7 +129,7 @@ CONTAINS
         CALL MET_GAUSS(A, BMAT, MATAMPGAUSS)
         CALL SUST_REGRESIVA(MATAMPGAUSS, MATGSR) !Matriz de Gauss con Sustitucion Regresiva
         CALL MET_GAUSSJORDAN(A, BMAT, MATAMPGJ)
-        CALL MET_LU_CROUT(ACROUT, B, XCROUT)
+        CALL MET_LU_CROUT(ACROUT, BCROUT, XCROUT)
         
         !Se pasan los resultados por los métodos de Gauss y Gauss-Jordan a vectores.
         ALLOCATE(XGAUSS(N), XGJ(N))
