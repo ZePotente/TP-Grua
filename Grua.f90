@@ -36,7 +36,8 @@ PROGRAM GRUA
     PRINT *, 'Prueba inicial terminada.'
     
     CALL CONFIRMAR()
-    CALL SYSTEM("clear")
+!    CALL SYSTEM("clear")
+!    CALL SYSTEM("clear")
     
     !Prueba en distintas posiciones y carga con el Método de Gauss-Jordan.
     PRINT *, 'Resolución en diferentes condiciones mediante el método de Gauss-Jordan.'
