@@ -16,6 +16,8 @@ PROGRAM GRUA
     PRINT *, 'Lectura de los datos iniciales.'
     CALL MAT_LEER(A, BANDERAA, 'A.txt')
     CALL VEC_LEER(B, BANDERAB, 'B.txt')
+    !Inicialmente era el sistema pivoteado manualmente para Crout, pero luego se utilizó también para probar los métodos indirectos 
+    !(por eso el nombre de las variables).
     CALL MAT_LEER(ACROUT, BANDERAC, 'ACrout.txt')
     CALL VEC_LEER(BCROUT, BANDERAD, 'BCrout.txt')
     
@@ -23,11 +25,16 @@ PROGRAM GRUA
     PRINT *, 'Datos leidos correctamente.'
     CALL MOSTRAR_DATOS(A, B, ACROUT, BCROUT)
     
-    CALL MET_JACOBI(ACROUT, BCROUT, 1D-15, XGS)
-!    PRINT *, 'Resultado por Jacobi'
+    CALL MET_JACOBI(ACROUT, BCROUT, 1D-10, XGS)
+    PRINT *, 'Resultado por Jacobi con matriz pivoteada manualmente:'
+    CALL VEC_MOSTRAR(XGS)
+    CALL MET_GS(ACROUT, BCROUT, 1D-10, XGS)
     PRINT *, 'Resultado por Gauss-Seidel'
     CALL VEC_MOSTRAR(XGS)
-    PRINT *, 'MOSTRADO'
+    
+    CALL CONFIRMAR()
+    CALL SYSTEM("Clear")
+    
     PRINT *, 'Prueba de métodos en la posición inicial.'
     CALL PRUEBA_METODOS_DIR(A, B, ACROUT, BCROUT, XGAUSS, XGJ, XCROUT)
     PRINT *, 'Métodos finalizados.'

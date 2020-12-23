@@ -47,7 +47,7 @@ CONTAINS
     END SUBROUTINE
     
     !Devuelve una matriz ampliada en GJ, con los resultados correspondientes a B.
-    !Realida pivoteo parcial por filas
+    !Realiza pivoteo parcial por filas
     SUBROUTINE MET_GAUSSJORDAN(A, B, GJ)
         REAL(8), ALLOCATABLE, DIMENSION(:,:) :: GJ
         REAL(8), DIMENSION(:,:), INTENT(IN) :: A, B
